@@ -28,6 +28,20 @@
 |Active Urls     | 高亮激活规则；多个 url 激活规则请用 ; 分隔。Example：`file:*;http:*`|
 |Request Url     | 跨站点交互，主要包含三个事件：1、获取高亮规则：请求方式：`GET`，要求返回结果格式：`[{"desc":"蓝色高亮","style":"background-color:blue;color:white;","pattern":"和尚"}]`；2、取消高亮某个关键字：请求方式：`POST`，请求内容格式：`action=remove&value=关键字`；3、页面右键菜单新增的高亮规则：请求方式：`POST`，请求内容格式：`action=update&value=[{"desc":"蓝色高亮","style":"background-color:blue;color:white;","pattern":"和尚"}]`。
 |Use Default Patterns | 是否启用默认高亮规则。
+
+Active Urls 的校验规则（参数 `url` 为根据分号（`;`）切分后的单个值）：
+
+```JavaScript
+function checkUrl(url, pattern) {
+	var reg = new RegExp();
+	reg.compile(pattern);
+	if (!reg.test(url)) {
+		return false;
+	}
+	return true;
+};
+```
+
 ![配置](http://7xi5qz.com1.z0.glb.clouddn.com/github/highlightemr/config.png)
 
 
