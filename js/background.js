@@ -272,7 +272,7 @@ show = function() {
 		message: "发送至：" + chrome.i18n.getMessage(emailToMeMsg),
 		iconUrl: "img/thumbs-up.jpg",
 		buttons: [{
-			title: "调转到邮箱"
+			title: "跳转到邮箱"
 		}, {
 			title: "取消发送"
 		}],
@@ -280,27 +280,27 @@ show = function() {
 	}, function(notificationId) {
 		console.info(notificationId + " was created!");
 	});
-
-	chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
-		// send email
-		if (buttonIndex == 0) {
-			var action_url = "mailto:" + chrome.i18n.getMessage(emailToMeMsg) + "?";
-			action_url += "subject=" + encodeURIComponent("Highlight Emr Bug Report!");
-			//console.info(action_url);
-			chrome.tabs.create({
-				url: action_url
-			});
-			return;
-
-		}
-		// cancel
-		if (buttonIndex == 1) {
-			chrome.notifications.clear(notificationId, function(wasCleared) {
-				if (wasCleared) {
-					console.info("notification-" + notificationId + " was cleared!");
-				}
-			});
-			return;
-		}
-	});
 };
+
+chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+	// send email
+	if (buttonIndex == 0) {
+		var action_url = "mailto:" + chrome.i18n.getMessage(emailToMeMsg) + "?";
+		action_url += "subject=" + encodeURIComponent("Highlight Emr Bug Report!");
+		//console.info(action_url);
+		chrome.tabs.create({
+			url: action_url
+		});
+		return;
+
+	}
+	// cancel
+	if (buttonIndex == 1) {
+		chrome.notifications.clear(notificationId, function(wasCleared) {
+			if (wasCleared) {
+				console.info("notification-" + notificationId + " was cleared!");
+			}
+		});
+		return;
+	}
+});
