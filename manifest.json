@@ -1,0 +1,51 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_manifest_app_name__",
+  "description": "__MSG_manifest_app_description__",
+  "version": "1.1",
+  "icons": {
+    "16": "img/icons/nis-16.png",
+    "32": "img/icons/nis-32.png",
+    "48": "img/icons/nis-48.png",
+    "64": "img/icons/nis-64.png",
+    "128": "img/icons/nis-128.png"
+  },
+  "default_locale": "zh",
+  "browser_action": {
+    "default_icon": "img/icons/nis-32.png",
+    "default_title": "__MSG_manifest_icon_default_title__",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "page": "background.html"
+  },
+  "minimum_chrome_version": "22.0.0",
+  "options_page": "options.html",
+  "permissions": [
+    "background",
+    "proxy",
+    "tabs",
+    "activeTab",
+    "alarms",
+    "storage",
+    "webRequest",
+    "webRequestBlocking",
+    "contextMenus",
+    "notifications",
+
+    "http://*/*",
+    "https://*/*",
+    "ftp://*/*",
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    "img/thumbs-up.jpg"
+  ],
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+N"
+      }
+    }
+  }
+}

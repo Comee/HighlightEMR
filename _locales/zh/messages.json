@@ -1,0 +1,23 @@
+{
+	"appNameShort":{
+		"message":"NisHighlight"
+	},
+	"manifest_app_name":{
+		"message":"nis 系统 emr 高亮插件"
+	},
+	"manifest_app_description":{
+		"message":"通过关键字匹配来高亮电子病历，方便院感科快速查看电子病历。"
+	},
+	"manifest_icon_default_title":{
+		"message":"高亮电子病历"
+	},
+	"id_bug":{
+        "message":"报告 Bug"
+	},
+	"id_cob":{
+        "message":"设置"
+	},
+	"email2me":{
+		"message":"shaozl@xinglin-tech.com"
+	}
+}

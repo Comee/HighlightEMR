@@ -1,0 +1,53 @@
+body {
+  overflow: hidden;
+  margin: 0px;
+  padding: 0px;
+}
+
+hr {
+  margin: 0px;
+  padding: 0px;
+}
+
+a {
+  text-decoration:none;
+}
+
+.fontawesome-icon-list {
+  margin-top: 2px;
+}
+.fontawesome-icon-list .fa-hover a {
+  display: block;
+  color: #222222;
+  line-height: 32px;
+  height: 32px;
+  padding-left: 10px;
+  border-radius: 4px;
+}
+.fontawesome-icon-list .fa-hover a .fa {
+  width: 16px;
+  font-size: 14px;
+  display: inline-block;
+  text-align: right;
+  margin-right: 10px;
+}
+.fontawesome-icon-list .fa-hover a:hover {
+  background-color: #1d9d74;
+  color: #ffffff;
+  text-decoration: none;
+}
+.fontawesome-icon-list .fa-hover a:hover .fa {
+  font-size: 28px;
+  vertical-align: -6px;
+}
+.fontawesome-icon-list .fa-hover a:hover .text-muted {
+  color: #bbe2d5;
+}
+
+.col-md-3, .col-sm-4 {
+  width: 150px;
+  position: relative;
+  min-height: 1px;
+  padding-left: 1px;
+  padding-right: 1px;
+}

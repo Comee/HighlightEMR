@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Highlight Emr</title>
+  <style>
+      body {
+        font-family: sans-serif;
+      }
+      label {
+        display: block;
+      }
+      textarea {
+        font-family: monospace;
+      }
+      .message {
+        height: 20px;
+        background: #eee;
+        padding: 5px;
+      }
+      label {
+        margin-top: 5px;
+      }
+      input[type=text], input[type=password] {
+        margin-top: 5px;
+        width: 600px;
+      }
+    </style>
+</head>
+<body>
+  <div class="message"></div>
+  <h3>Highlight Emr Instructions</h3>
+
+  <ol>
+    <li>Write Json data in this textarea and save.</li>
+    <li>
+      Json data array should include object which contains the following properties:
+      <ul>
+        <li>desc</li>
+        <li>style</li>
+        <li>pattern</li>
+      </ul>
+    </li>
+    <li>
+      then, this chrome extension will apply the style to the words which match the pattern.
+    </li>
+  </ol>
+
+  <label for="customPatterns">Custom Patterns:</label>
+  <textarea name="customPatterns" id="customPatterns" cols=80 rows=24
+        placeholder="eg: 
+
+[{
+'desc':'腹泻',
+'style':'background-color:blue;color:white;',
+'pattern':'腹泻;腹痛'
+}]"></textarea>
+
+  <br/>
+  <br/>
+  <label for="activeUrls">Active Urls:</label>
+  <input type="text" name="activeUrls" id="activeUrls" placeholder="请输入正则表达式，当地址满足该表达式时，启用高亮功能。">
+
+  <br/>
+  <br/>
+  <label for="requestUrl">Request Url:</label>
+  <input type="text" name="requestUrl" id="requestUrl" placeholder="ajax请求地址，get 获取 json 数据，post 发送 json。">
+
+  <br/>
+  <br/>
+  Use Default Patterns: <input type="checkbox" name="useDefault" id="useDefault" checked/>
+  
+
+  <br/>
+  <br/>
+
+  <button class="submit">Save</button>
+  <button class="reset">Reset</button>
+
+  <script src="js/options.js"></script>
+</body>
+</html>
