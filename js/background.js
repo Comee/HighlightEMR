@@ -6,10 +6,7 @@ var emailToMeMsg = "email2me";
 function checkUrl(url, pattern) {
 	var reg = new RegExp();
 	reg.compile(pattern);
-	if (!reg.test(url)) {
-		return false;
-	}
-	return true;
+	return reg.test(url);
 };
 
 // Check whether new version is installed.

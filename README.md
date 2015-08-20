@@ -35,10 +35,7 @@ Active Urls 的校验规则（参数 `url` 为根据分号（`;`）切分后的�
 function checkUrl(url, pattern) {
 	var reg = new RegExp();
 	reg.compile(pattern);
-	if (!reg.test(url)) {
-		return false;
-	}
-	return true;
+	return reg.test(url);
 };
 ```
 
