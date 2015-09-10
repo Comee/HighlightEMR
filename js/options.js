@@ -8,15 +8,13 @@
 // bandwidth) so data that may be as large and updated as frequently as the CSS
 // may not be suitable.
 
-var storage = chrome.storage.local;
-
-// Get at the DOM controls used in the sample.
-var resetButton = document.querySelector('button.reset');
-var submitButton = document.querySelector('button.submit');
-var textarea = document.querySelector('textarea');
-var activeUrls = document.getElementById("activeUrls");
-var requestUrl = document.getElementById("requestUrl");
-var useDefault = document.getElementById("useDefault");
+var storage = chrome.storage.local,
+    resetButton = document.querySelector('button.reset'),
+    submitButton = document.querySelector('button.submit'),
+    textarea = document.querySelector('textarea'),
+    activeUrls = document.getElementById("activeUrls"),
+    requestUrl = document.getElementById("requestUrl"),
+    useDefault = document.getElementById("useDefault");
 
 // Load any CSS that may have previously been saved.
 loadChanges();
@@ -26,10 +24,11 @@ resetButton.addEventListener('click', reset);
 
 function saveChanges() {
   // Get the current hlconfig snippet from the form.
-  var custom_patterns = textarea.value;
-  var active_urls = activeUrls.value;
-  var request_url = requestUrl.value;
-  var use_default = useDefault.checked;
+  var custom_patterns = textarea.value,
+      active_urls = activeUrls.value,
+      request_url = requestUrl.value,
+      use_default = useDefault.checked,
+      hlconfig = hlconfig || {};
 
   // console.info(request_url);
   // console.info(use_default);
@@ -45,8 +44,6 @@ function saveChanges() {
     message('Warn: Nothing need to save');
     return;
   }
-
-  var hlconfig = hlconfig || {};
 
   hlconfig.customPatterns = custom_patterns;
   hlconfig.activeUrls = active_urls;

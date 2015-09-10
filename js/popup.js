@@ -1,3 +1,6 @@
+var cob = document.getElementById("cob"),
+	bug = document.getElementById("bug");
+
 function cobButtonClick(e) {
 
 	var option_url = chrome.extension.getURL('options.html');
@@ -27,18 +30,18 @@ function bugButtonClick(e) {
 	window.close();
 };
 
-var cob = document.getElementById("cob");
-cob.parentNode.parentNode.addEventListener('click', cobButtonClick);
 
-var bug = document.getElementById("bug");
+cob.parentNode.parentNode.addEventListener('click', cobButtonClick);
 bug.parentNode.parentNode.addEventListener('click', bugButtonClick);
 
 document.addEventListener('DOMContentLoaded', function() {
 
-	var spans = document.querySelectorAll('a>span');
+	var spans = document.querySelectorAll('a>span'),
+		i = 0,
+		msg;
 
-	for (var i = 0; i < spans.length; i++) {
-		var msg = "id_" + spans[i].id;
+	for (; i < spans.length; i++) {
+		msg = "id_" + spans[i].id;
 		spans[i].innerHTML = chrome.i18n.getMessage(msg);
 	}
 });

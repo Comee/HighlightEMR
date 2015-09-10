@@ -1,12 +1,38 @@
-var storage = chrome.storage.local;
-var flag_init = false;
-var emailToMeMsg = "email2me";
+var storage = chrome.storage.local,
+	emailToMeMsg = "email2me",
+	notHighlightId,
+	context,
+	evTimeStamp = 0,
+	title,
+	menuItemId,
+	contexts = ["selection", "selection"],
+	titles = ["红色高亮", "蓝色高亮"],
+	menuItemIds = ["red", "blue"],
+	twopatterns = {
+		"red": {
+			"desc": "红色高亮",
+			"style": "background-color:red;color:white;",
+			"pattern": ""
+		},
+		"blue": {
+			"desc": "蓝色高亮",
+			"style": "background-color:blue;color:white;",
+			"pattern": ""
+		}
+	};
+
 
 // 检查 url 是否满足正则表达式。
-function checkUrl(url, pattern) {
-	var reg = new RegExp();
-	reg.compile(pattern);
-	return reg.test(url);
+function checkUrl(url, patterns) {
+	var reg = new RegExp(),
+		index = 0;
+	for(; index < patterns.length; index++)	{
+		reg.compile(patterns[index]);
+		if(reg.test(url)) {
+			return true;
+		}
+	}
+	return false;
 };
 
 // Check whether new version is installed.
@@ -29,32 +55,39 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab) {
 
 		// console.info("onActivated");
+		chrome.browserAction.setBadgeText({
+			text: ""
+		});
 
 		if (tab.url && tab.url.indexOf('chrome') != 0) {
-
-			chrome.browserAction.setBadgeText({
-				text: ""
-			});
 
 			storage.get('hlconfig', function(items) {
 				// To avoid checking items.hlconfig we could specify storage.get({hlconfig: ''}) to
 				// return a default value of '' if there is no hlconfig value yet.
+				var active_url_patterns;
+				
 				if (items.hlconfig) {
-					var active_url_patterns = items.hlconfig.activeUrls.split(";");
-					for (i = 0; i < active_url_patterns.length; i++) {
-						if (checkUrl(tab.url, active_url_patterns[i])) {
+					active_url_patterns = items.hlconfig.activeUrls.split(";");
 
-							//下面这段代码会有bug,若不取消注释的话，单击chrome 插件管理页面的 重新加载 会导致关键字被多个高亮标签重复包裹。
-							// chrome.tabs.executeScript(null, {
-							// 	file: "js/content_script.js"
-							// });
+					if(checkUrl(tab.url, active_url_patterns)) {
+						// console.info("Tab change!...");
+						chrome.browserAction.setBadgeText({
+							text: "ON"
+						});
 
-							chrome.browserAction.setBadgeText({
-								text: "ON"
-							});
-							break;
-						}
+						var now = +new Date();
+						if (now - evTimeStamp < 100) {
+        					return;
+    					}
+    					evTimeStamp = now;
+
+						chrome.tabs.executeScript(null, {
+							file: "js/content_script.js"
+						});
 					}
+
+					return;
+
 				} else {
 					return;
 				}
@@ -66,37 +99,39 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 // tab 更新时，重新进行高亮渲染。
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	// console.info("chrome.tabs.onUpdated");
+	chrome.browserAction.setBadgeText({
+		text: ""
+	});
 	if (tab.url.indexOf('chrome') != 0) {
 		// console.info(tab.url);
-
-		chrome.browserAction.setBadgeText({
-			text: ""
-		});
-
 		storage.get('hlconfig', function(items) {
+			var active_url_patterns;
 			if (items.hlconfig) {
-				var active_url_patterns = items.hlconfig.activeUrls.split(";");
-				for (i = 0; i < active_url_patterns.length; i++) {
-					if (checkUrl(tab.url, active_url_patterns[i])) {
+				active_url_patterns = items.hlconfig.activeUrls.split(";");
 
-						// 由于 content_script.js 总是修改页面内容，所以会导致tab更新两次。
-						// 同时将导致 content_script.js 中的 chrome.extension.onMessage 被绑定两次，顾需要添加一个flag。
-						if (!flag_init) {
-							chrome.tabs.executeScript(null, {
-								file: "js/content_script.js"
-							});
-							flag_init = true;
-						} else {
-							flag_init = false;
-						}
+				if (checkUrl(tab.url, active_url_patterns)) {
 
-						chrome.browserAction.setBadgeText({
-							text: "ON"
-						});
+					// console.info("refresh .............");
 
-						break;
-					}
+					chrome.browserAction.setBadgeText({
+						text: "ON"
+					});
+
+					var now = +new Date();
+					if (now - evTimeStamp < 100) {
+        				return;
+    				}
+    				evTimeStamp = now;
+
+    				
+					chrome.tabs.executeScript(null, {
+						file: "js/content_script.js"
+					});
+					
 				}
+
+				return;
+
 			} else {
 				return;
 			}
@@ -110,10 +145,9 @@ function containsRedOrBlue(custom_patterns, targetDesc) {
 	var result = {
 		"contain": false,
 		"index": -1
-	};
+	}, i = 0, len = custom_patterns.length;
 
-	var len = custom_patterns.length;
-	for (var i = 0; i < len; i++) {
+	for (; i < len; i++) {
 		if (custom_patterns[i].desc == targetDesc) {
 			result.contain = true;
 			result.index = i;
@@ -135,28 +169,31 @@ function genericOnClick(info, tab) {
 	// console.log("info: " + JSON.stringify(info));
 	// console.log("tab: " + JSON.stringify(tab));
 
-	var targetPattern = twopatterns[info.menuItemId].pattern;
-	var patternArray = targetPattern == "" ? [] : targetPattern.split(";");
+	var targetPattern = twopatterns[info.menuItemId].pattern,
+		patternArray = targetPattern == "" ? [] : targetPattern.split(";");
 
 	if (patternArray.indexOf(info.selectionText) == -1) {
 		patternArray.push(info.selectionText);
 		twopatterns[info.menuItemId].pattern = patternArray.join(";");
 	}
 
-	console.info(twopatterns[info.menuItemId].pattern);
-
 	chrome.tabs.sendMessage(tab.id, {
 		"hl": twopatterns[info.menuItemId]
 	});
 
 	storage.get('hlconfig', function(items) {
+		var custom_patterns,
+			isContainObject,
+			request_url;
+
 		if (items.hlconfig) {
 
-			var custom_patterns = items.hlconfig.customPatterns
+			custom_patterns = items.hlconfig.customPatterns;
+
 			custom_patterns = custom_patterns ? custom_patterns : "[]";
 			custom_patterns = JSON.parse(custom_patterns);
 
-			var isContainObject = containsRedOrBlue(custom_patterns, twopatterns[info.menuItemId].desc);
+			isContainObject = containsRedOrBlue(custom_patterns, twopatterns[info.menuItemId].desc);
 
 			if (isContainObject.contain) {
 				custom_patterns[isContainObject.index].pattern = twopatterns[info.menuItemId].pattern;
@@ -172,7 +209,7 @@ function genericOnClick(info, tab) {
 				console.info('Settings saved');
 			});
 
-			var request_url = items.hlconfig.requestUrl;
+			request_url = items.hlconfig.requestUrl;
 			if (request_url) {
 				request_url += "?action=update&value=" + JSON.stringify(twopatterns[info.menuItemId]);
 				var xhr = new XMLHttpRequest();
@@ -186,28 +223,17 @@ function genericOnClick(info, tab) {
 	});
 };
 
-var contexts = ["selection", "selection"];
-var titles = ["红色高亮", "蓝色高亮"];
-var menuItemIds = ["red", "blue"];
-var twopatterns = {
-	"red": {
-		"desc": "红色高亮",
-		"style": "background-color:red;color:white;",
-		"pattern": ""
-	},
-	"blue": {
-		"desc": "蓝色高亮",
-		"style": "background-color:blue;color:white;",
-		"pattern": ""
-	}
-};
+chrome.contextMenus.removeAll(function() {
+	// console.info("remove all contextMenus!");
+});
 
 // 绑定右键菜单：红色高亮和蓝色高亮
 for (var i = 0; i < contexts.length; i++) {
-	var context = contexts[i];
-	var title = titles[i];
-	var menuItemId = menuItemIds[i];
-	var id = chrome.contextMenus.create({
+	context = contexts[i],
+	title = titles[i],
+	menuItemId = menuItemIds[i];
+
+	id = chrome.contextMenus.create({
 		"id": menuItemId,
 		"title": title,
 		"contexts": [context],
@@ -222,10 +248,20 @@ function notHighlight(info, tab) {
 	// console.info(info.selectionText);
 
 	menuItemIds.forEach(function(menuItemId) {
-		var targetPattern = twopatterns[menuItemId].pattern;
-		var patternArray = targetPattern == "" ? [] : targetPattern.split(";");
 
-		var index = patternArray.indexOf(info.selectionText);
+		// console.info(menuItemId);
+		
+		var targetPattern,
+			patternArray,
+			index = 0;
+
+			// console.info(twopatterns);
+
+		targetPattern = twopatterns[menuItemId].pattern;
+		// console.info(targetPattern);
+		patternArray = targetPattern == "" ? [] : targetPattern.split(";");
+
+		index = patternArray.indexOf(info.selectionText);
 		if (index >= 0) {
 			patternArray.splice(index, 1);
 		}
@@ -239,7 +275,7 @@ function notHighlight(info, tab) {
 };
 
 // 绑定右键菜单：取消高亮
-var notHighlightId = chrome.contextMenus.create({
+notHighlightId = chrome.contextMenus.create({
 	"title": "取消高亮",
 	"contexts": ["selection"],
 	"onclick": notHighlight
@@ -249,14 +285,14 @@ var notHighlightId = chrome.contextMenus.create({
 // create callback.
 // console.log("About to try creating an invalid item - an error about " + "item 999 should show up");
 
-chrome.contextMenus.create({
-	"title": "Oops",
-	"parentId": 999
-}, function() {
-	if (chrome.extension.lastError) {
-		console.log("Got expected error: " + chrome.extension.lastError.message);
-	}
-});
+// chrome.contextMenus.create({
+// 	"title": "Oops",
+// 	"parentId": 999
+// }, function() {
+// 	if (chrome.extension.lastError) {
+// 		console.log("Got expected error: " + chrome.extension.lastError.message);
+// 	}
+// });
 
 // bug report notification
 show = function() {
@@ -280,9 +316,11 @@ show = function() {
 };
 
 chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+	var action_url;
+
 	// send email
 	if (buttonIndex == 0) {
-		var action_url = "mailto:" + chrome.i18n.getMessage(emailToMeMsg) + "?";
+		action_url = "mailto:" + chrome.i18n.getMessage(emailToMeMsg) + "?";
 		action_url += "subject=" + encodeURIComponent("Highlight Emr Bug Report!");
 		//console.info(action_url);
 		chrome.tabs.create({
