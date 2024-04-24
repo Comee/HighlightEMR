@@ -16,6 +16,33 @@ function containAWord(word) {
 	return result;
 };
 
+function runScript(body, script) {
+	var document = body.parentNode.parentNode;
+	// 直接 document.head.appendChild(script) 是不会生效的，需要重新创建一个
+	var newScript = document.createElement('script');
+	// 获取 inline script
+	newScript.innerHTML = script.innerHTML;
+	// 存在 src 属性的话
+	var src = script.getAttribute('src');
+	if (src) newScript.setAttribute('src', src);
+
+	document.head.appendChild(newScript);
+	document.head.removeChild(newScript);
+}
+
+function setHTMLWithScript(body, rawHTML) {
+	body.innerHTML = rawHTML;
+	var scripts = body.querySelectorAll('script');
+	if (scripts.length==0) {
+		return false;
+	}
+	for (i = 0; i < scripts.length; i++) {
+		var script = scripts[i];
+		runScript(body, script);
+	}
+	return true;
+}
+
 // 高亮实现
 function searchHighlight(htmlElement, keyword, style) {
 	var now = +new Date();
@@ -209,7 +236,8 @@ function searchHighlightArray(jsonArray) {
 	// pucl.innerHTML = sourcesAfterHighlight[0];
 	// console.info(pucl);
 	for(index = 1; index < sources.length; index++) {
-		sources[index].innerHTML = sourcesAfterHighlight[index];
+		// sources[index].innerHTML = sourcesAfterHighlight[index];
+		setHTMLWithScript(sources[index], sourcesAfterHighlight[index]);
 		// console.info("index="+index+" "+sourcesAfterHighlight[index]);
 	}
 };
